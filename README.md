@@ -28,5 +28,9 @@ be attached to the generated pdf must be prefixed with `attachment.`
 Example:
 
 ```
-curl -F "html=@tests/index.html" -F "asset.universe.jpg=@tests/universe.jpg" http://localhost:3000 -o test.pdf
+curl -F "html=@tests/index.html" -F "asset.universe.jpg=@tests/universe.jpg" http://localhost:3200 -o test.pdf
+```
+From Browser:
+```
+curl http://localhost:3200/?url=https%3A%2F%2Fweasyprint.org%2F&output=weasyprint.pdf&inline=true
 ```

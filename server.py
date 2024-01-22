@@ -129,9 +129,59 @@ async def stream_file(request, filename, content_type):
     return response
 
 
+
 async def healthcheck(request):
     return web.Response(status=200, text="OK")
 
+async def stream_file_ext(request, filename, content_type, output_name, inline):
+    attachment = "attachment"
+    if inline:
+        attachment = "inline"
+    response = web.StreamResponse(
+        status=200,
+        reason='OK',
+        headers={
+            'Content-Type': content_type,
+            'Content-Disposition':
+            f'{attachment}; filename="{ output_name }"',
+        },
+    )
+    await response.prepare(request)
+
+    with open(filename, 'rb') as outfile:
+        while True:
+            data = outfile.read(CHUNK_SIZE)
+            if not data:
+                break
+            await response.write(data)
+
+    await response.write_eof()
+    return response
+
+async def render_pdf_url(request):
+    temp_dir = None    
+    inline = False
+
+    url = request.rel_url.query['url']
+    output_name = request.rel_url.query.get('output', 'output.pdf')
+    inline_q = request.rel_url.query.get('inline', '')
+
+    if inline_q == 'true':
+        inline = True
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        html = HTML(url)    
+        pdf_filename = os.path.join(temp_dir, 'output.pdf')    
+
+        try:
+            html.write_pdf(
+                pdf_filename)
+        except Exception:
+            logger.exception('PDF generation failed')
+            return web.Response(
+                status=500, text="PDF generation failed.")
+        else:
+            return await stream_file_ext(request, pdf_filename, 'application/pdf', output_name, inline)
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -140,5 +190,6 @@ if __name__ == '__main__':
     )
     app = web.Application()
     app.add_routes([web.post('/', render_pdf)])
+    app.add_routes([web.get('/', render_pdf_url)])
     app.add_routes([web.get('/healthcheck', healthcheck)])
     web.run_app(app)

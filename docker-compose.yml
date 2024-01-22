@@ -5,6 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: 4teamwork/weasyprint:latest
+    image: mritter-cidb/weasyprint:latest
     ports:
-      - 3000:8080
+      - 3200:8080
