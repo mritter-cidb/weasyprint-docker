@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  weasyprint:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cidb/weasyprint:latest
+    ports:
+      - 3200:8080

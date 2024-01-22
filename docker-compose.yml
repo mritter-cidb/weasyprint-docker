@@ -2,9 +2,6 @@ version: "3.8"
 
 services:
   weasyprint:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: mritter-cidb/weasyprint:latest
+    image: cidb/weasyprint-docker
     ports:
       - 3200:8080
